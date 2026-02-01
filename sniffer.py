@@ -6,11 +6,11 @@ import struct
 import sys
 import argparse
 import time
-# from config import get_gemini_client
-from config import get_ai_client
+from config import get_gemini_client
+# from config import get_ai_client
 
-# client = get_gemini_client()
-client = get_ai_client()
+client = get_gemini_client()
+# client = get_ai_client()
 last_ai_call = 0
 
 class Queue:
@@ -108,47 +108,47 @@ class Packet:
             print("\n" + "-"*20 + "\n")
 #---------------------------------------------------------------------------------------------------------  
 #For a gemini Model
-# def packet_analyzer(payload):
-#     global last_ai_call
-#     # if not client or (time.time() - last_ai_call < 20):
-#     #     return None 
-#     #Self notes, chr(b) converts a byte value into its ascii, 32-126 is the printable ascii range for small letters, capital letters and special characters, and if there's anything beyond the range, it may cause the code to fail so its replaced using a .
-#     # ascii_packet = "".join(chr(b) if 32 <= b <= 126 else "." for b in payload[:300])
-#     ascii_packet = PQueue.dequeue()
-#     hex_sample = payload[:100].hex()
-#     prompt = (f"Act as a network analyst. Analyze the packet captured."
-#     f"RAW HEX: {hex_sample}\n"
-#     f"ASCII STRING: {ascii_packet}\n\n"
-#     "The prompt is going to be in simple english, perform a basic analysis in not more than 200 characters. Highlight on the command's purpose and risk."
-#     )
-
-#     try:
-#         last_ai_call = time.time()
-#         response = client.models.generate_content(
-#             model= "gemini-2.5-flash",
-#             contents = prompt
-#         )
-#         return response.text
-#     except Exception as e:
-#         return f"AI error: {e}"
-#--------------------------------------------------------------------------------------------------------- 
-def packet_analyzer(payload_text):
-    if not client: return None
+def packet_analyzer(payload):
+    global last_ai_call
+    # if not client or (time.time() - last_ai_call < 20):
+    #     return None 
+    #Self notes, chr(b) converts a byte value into its ascii, 32-126 is the printable ascii range for small letters, capital letters and special characters, and if there's anything beyond the range, it may cause the code to fail so its replaced using a .
+    # ascii_packet = "".join(chr(b) if 32 <= b <= 126 else "." for b in payload[:300])
+    ascii_packet = PQueue.dequeue()
+    hex_sample = payload[:100].hex()
+    prompt = (f"Act as a network analyst. Analyze the packet captured."
+    f"RAW HEX: {hex_sample}\n"
+    f"ASCII STRING: {ascii_packet}\n\n"
+    "The prompt is going to be in simple english, perform a basic analysis in not more than 200 characters. Highlight on the command's purpose and risk."
+    )
 
     try:
-    
-        response = client.chat.completions.create(
-            model="nvidia/llama-3.1-nemotron-70b-instruct",
-            messages=[
-                {"role": "system", "content": "You are a network security analyst. Be brief."},
-                {"role": "user", "content": f"Analyze this packet: {payload_text}"}
-            ],
-            max_tokens=50,
-            temperature=0.2
+        last_ai_call = time.time()
+        response = client.models.generate_content(
+            model= "gemini-2.5-flash",
+            contents = prompt
         )
-        return response.choices[0].message.content
+        return response.text
     except Exception as e:
-        return f"NVIDIA API Error: {e}"
+        return f"AI error: {e}"
+#--------------------------------------------------------------------------------------------------------- 
+# def packet_analyzer(payload_text):
+#     if not client: return None
+
+#     try:
+    
+#         response = client.chat.completions.create(
+#             model="nvidia/llama-3.1-nemotron-70b-instruct",
+#             messages=[
+#                 {"role": "system", "content": "You are a network security analyst. Be brief."},
+#                 {"role": "user", "content": f"Analyze this packet: {payload_text}"}
+#             ],
+#             max_tokens=50,
+#             temperature=0.2
+#         )
+#         return response.choices[0].message.content
+#     except Exception as e:
+#         return f"NVIDIA API Error: {e}"
 
 def sniff(host):
     if opts.proto == 'tcp':
